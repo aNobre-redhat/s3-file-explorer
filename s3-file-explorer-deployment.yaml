@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: s3-file-explorer
+  namespace: obc-testing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: s3-file-explorer
+  template:
+    metadata:
+      labels:
+        app: s3-file-explorer
+    spec:
+      containers:
+      - name: s3-file-explorer
+        image: image-registry.openshift-image-registry.svc:5000/obc-testing/s3-file-explorer:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: S3_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: test01-obc
+              key: AWS_ACCESS_KEY_ID
+        - name: S3_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: test01-obc
+              key: AWS_SECRET_ACCESS_KEY
+        - name: S3_ENDPOINT_URL
+          valueFrom:
+            secretKeyRef:
+              name: test01-obc
+              key: BUCKET_HOST
+        - name: S3_BUCKET_NAME
+          value: "test01-obc"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: s3-file-explorer
+  namespace: obc-testing
+spec:
+  selector:
+    app: s3-file-explorer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: s3-file-explorer
+  namespace: obc-testing
+spec:
+  to:
+    kind: Service
+    name: s3-file-explorer
+  port:
+    targetPort: 80

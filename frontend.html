@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Explorer</title>
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('file-input');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('File uploaded successfully');
+                listFiles();  // Refresh file list
+            } else {
+                alert('File upload failed');
+            }
+        }
+
+        async function listFiles() {
+            const response = await fetch('/list');
+            const files = await response.json();
+
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';  // Clear existing list
+
+            files.forEach(file => {
+                const fileItem = document.createElement('li');
+                fileItem.textContent = file;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = async function() {
+                    await fetch(`/delete/${file}`, { method: 'DELETE' });
+                    listFiles();  // Refresh file list
+                };
+
+                fileItem.appendChild(deleteButton);
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', listFiles);
+    </script>
+</head>
+<body>
+    <h1>File Explorer</h1>
+    <input type="file" id="file-input" />
+    <button onclick="uploadFile()">Upload</button>
+    <h2>Files in Bucket</h2>
+    <ul id="file-list"></ul>
+</body>
+</html>
