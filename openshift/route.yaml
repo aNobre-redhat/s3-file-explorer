@@ -1,0 +1,13 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: s3-file-explorer
+  namespace: obc-testing
+spec:
+  to:
+    kind: Service
+    name: s3-file-explorer
+  port:
+    targetPort: 80
+  tls:
+    termination: edge

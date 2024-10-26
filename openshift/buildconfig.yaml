@@ -1,0 +1,18 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: s3-file-explorer
+  namespace: obc-testing
+spec:
+  source:
+    type: Git
+    git:
+      uri: "https://github.com/aNobre-redhat/s3-file-explorer.git"
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 's3-file-explorer:latest'
