@@ -1,9 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import boto3
 import os
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 CORS(app)  # Permitir CORS para o frontend
 
 # Credenciais do bucket S3 (usando a Secret do OBC)
@@ -19,6 +19,10 @@ s3_client = boto3.client(
     aws_secret_access_key=s3_secret_key,
     endpoint_url=s3_endpoint_url
 )
+
+@app.route('/')
+def serve_frontend():
+    return send_from_directory(app.static_folder, 'frontend.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
