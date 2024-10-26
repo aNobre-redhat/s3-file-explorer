@@ -12,13 +12,13 @@ s3_secret_key = os.getenv('S3_SECRET_KEY')
 s3_endpoint_url = os.getenv('S3_ENDPOINT_URL')
 bucket_name = os.getenv('S3_BUCKET_NAME')
 
-# Cliente Boto3 S3 configurado para o storage compatível
+# Cliente Boto3 S3 configurado para o storage compatível com NooBaa
 s3_client = boto3.client(
     's3',
-    endpoint_url=s3_endpoint_url,
-    aws_access_key_id=s3_access_key,
-    aws_secret_access_key=s3_secret_key,
-    verify=False  # Desativar verificação de certificado SSL
+    endpoint_url="https://s3-openshift-storage.apps.nshift02.nobre.labz",  # Use a rota pública
+    aws_access_key_id=os.getenv('S3_ACCESS_KEY'),
+    aws_secret_access_key=os.getenv('S3_SECRET_KEY'),
+    verify=False  # Desativar verificação de SSL
 )
 
 @app.route('/')
