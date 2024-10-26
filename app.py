@@ -13,11 +13,13 @@ s3_endpoint_url = os.getenv('S3_ENDPOINT_URL')
 bucket_name = os.getenv('S3_BUCKET_NAME')
 
 # Cliente Boto3 S3 configurado para o storage compatível
+
 s3_client = boto3.client(
     's3',
     aws_access_key_id=s3_access_key,
     aws_secret_access_key=s3_secret_key,
     endpoint_url=s3_endpoint_url
+    verify=False
 )
 
 @app.route('/')
