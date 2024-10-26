@@ -43,6 +43,7 @@ s3_client = boto3.client(
     verify=False  # Desativar verificação de SSL
 )
 
+
 @app.route('/')
 def serve_frontend():
     return send_from_directory(app.static_folder, 'frontend.html')
@@ -61,11 +62,12 @@ def list_files():
     files = [
         {
             'name': obj['Key'],
-            'url': s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': obj['Key']}, ExpiresIn=3600)
+            'url': s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': obj['Key']}, ExpiresIn=3600).replace('https://', 'http://')
         }
         for obj in response.get('Contents', [])
     ]
     return jsonify(files), 200
+
 
 @app.route('/delete/<filename>', methods=['DELETE'])
 def delete_file(filename):
