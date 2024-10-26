@@ -1,57 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>File Explorer</title>
-    <script>
-        async function uploadFile() {
-            const fileInput = document.getElementById('file-input');
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                alert('File uploaded successfully');
-                listFiles();  // Refresh file list
-            } else {
-                alert('File upload failed');
-            }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3 File Explorer</title>
+    <style>
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
         }
-
-        async function listFiles() {
-            const response = await fetch('/list');
-            const files = await response.json();
-
-            const fileList = document.getElementById('file-list');
-            fileList.innerHTML = '';  // Clear existing list
-
-            files.forEach(file => {
-                const fileItem = document.createElement('li');
-                fileItem.textContent = file;
-
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.onclick = async function() {
-                    await fetch(`/delete/${file}`, { method: 'DELETE' });
-                    listFiles();  // Refresh file list
-                };
-
-                fileItem.appendChild(deleteButton);
-                fileList.appendChild(fileItem);
-            });
+        .thumbnail {
+            width: 200px;
+            height: 200px;
+            margin: 10px;
         }
-
-        document.addEventListener('DOMContentLoaded', listFiles);
-    </script>
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body>
-    <h1>File Explorer</h1>
-    <input type="file" id="file-input" />
+    <h1>S3 File Viewer</h1>
+    <input type="file" id="fileInput">
     <button onclick="uploadFile()">Upload</button>
-    <h2>Files in Bucket</h2>
-    <ul id="file-list"></ul>
+
+    <h2>Gallery</h2>
+    <div class="gallery" id="gallery"></div>
+
+    <script>
+        function loadGallery() {
+            fetch('/list')
+                .then(response => response.json())
+                .then(files => {
+                    const gallery = document.getElementById('gallery');
+                    gallery.innerHTML = '';  // Clear current gallery
+                    files.forEach(file => {
+                        const div = document.createElement('div');
+                        div.className = 'thumbnail';
+                        const img = document.createElement('img');
+                        img.src = file.url;
+                        div.appendChild(img);
+                        gallery.appendChild(div);
+                    });
+                });
+        }
+
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    alert('File uploaded successfully');
+                    loadGallery();  // Reload gallery after upload
+                } else {
+                    alert('File upload failed');
+                }
+            });
+        }
+
+        // Load gallery on page load
+        window.onload = loadGallery;
+    </script>
 </body>
 </html>
