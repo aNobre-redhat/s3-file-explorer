@@ -13,13 +13,12 @@ s3_endpoint_url = os.getenv('S3_ENDPOINT_URL')
 bucket_name = os.getenv('S3_BUCKET_NAME')
 
 # Cliente Boto3 S3 configurado para o storage compatível
-
 s3_client = boto3.client(
     's3',
-    endpoint_url=os.getenv('S3_ENDPOINT_URL'),
-    aws_access_key_id=os.getenv('S3_ACCESS_KEY'),
-    aws_secret_access_key=os.getenv('S3_SECRET_KEY'),
-    verify=False  # Aqui é o lugar correto para este parâmetro
+    endpoint_url=s3_endpoint_url,
+    aws_access_key_id=s3_access_key,
+    aws_secret_access_key=s3_secret_key,
+    verify=False  # Desativar verificação de certificado SSL
 )
 
 @app.route('/')
@@ -51,14 +50,9 @@ def delete_file(filename):
     s3_client.delete_object(Bucket=bucket_name, Key=filename)
     return 'File deleted successfully', 200
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
 @app.before_request
 def log_request():
     print(f"Received request: {request.method} {request.path}")
 
-@app.route('/view/<filename>', methods=['GET'])
-def view_file(filename):
-    file_url = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': filename}, ExpiresIn=3600)
-    return jsonify({"url": file_url}), 200
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
