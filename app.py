@@ -16,10 +16,10 @@ bucket_name = os.getenv('S3_BUCKET_NAME')
 
 s3_client = boto3.client(
     's3',
-    aws_access_key_id=s3_access_key,
-    aws_secret_access_key=s3_secret_key,
-    endpoint_url=s3_endpoint_url
-    verify=False
+    endpoint_url=os.getenv('S3_ENDPOINT_URL'),
+    aws_access_key_id=os.getenv('S3_ACCESS_KEY'),
+    aws_secret_access_key=os.getenv('S3_SECRET_KEY'),
+    verify=False  # Aqui é o lugar correto para este parâmetro
 )
 
 @app.route('/')
